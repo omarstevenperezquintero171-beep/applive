@@ -6,18 +6,39 @@ import Link from 'next/link';
 import { createClient } from '@/lib/supabase/client';
 import { getGuestCredits, deductGuestCredit, saveGuestVideo, updateGuestVideoStatus } from '@/lib/credits';
 import type { Profile, Video } from '@/types';
+import CameraCaptureModal from './CameraCaptureModal';
 
-const AVATAR_CATEGORIES = ['Todos', 'Profesional', 'Creativo', 'Tech', '3D & AI'] as const;
+const AVATAR_CATEGORIES = ['Todos', 'Empresarial', 'Creadores', 'E-commerce / Ventas', 'Especiales'] as const;
 
 const AVATARS = [
-  { id: 'av_exec_m', emoji: '👨‍💼', label: 'Carlos · Ejecutivo', category: 'Profesional', bg: 'linear-gradient(135deg,#1e3a5f,#2d6a9f)' },
-  { id: 'av_exec_f', emoji: '👩‍💼', label: 'Elena · Directora', category: 'Profesional', bg: 'linear-gradient(135deg,#2e1e5f,#6a2d9f)' },
-  { id: 'av_prof_f', emoji: '👩‍🏫', label: 'Sofía · Educadora', category: 'Creativo', bg: 'linear-gradient(135deg,#4a1c6e,#8b44c0)' },
-  { id: 'av_crea_f', emoji: '👩‍🎨', label: 'Maya · Creadora', category: 'Creativo', bg: 'linear-gradient(135deg,#5c1a1a,#c0442e)' },
-  { id: 'av_dev_m', emoji: '🧑‍💻', label: 'Alex · Tech Lead', category: 'Tech', bg: 'linear-gradient(135deg,#1a3a2e,#2e9e68)' },
-  { id: 'av_scie_m', emoji: '🧑‍🔬', label: 'David · Analista', category: 'Tech', bg: 'linear-gradient(135deg,#1a3450,#2e7dc0)' },
-  { id: 'av_cyber', emoji: '🤖', label: 'Neo · Cyber AI', category: '3D & AI', bg: 'linear-gradient(135deg,#0a192f,#00ffcc33)' },
-  { id: 'av_astro', emoji: '👩‍🚀', label: 'Aria · Futurista', category: '3D & AI', bg: 'linear-gradient(135deg,#1a1a4a,#4a4ac0)' },
+  {
+    id: 'av_empresarial_1',
+    image: '/avatars/empresarial.jpg',
+    label: 'Carlos · Ejecutivo',
+    role: 'Traje de Negocios · 8K',
+    category: 'Empresarial',
+  },
+  {
+    id: 'av_creador_1',
+    image: '/avatars/creador.jpg',
+    label: 'Elena · Creadora',
+    role: 'Estudio RGB · TikTok/Reels',
+    category: 'Creadores',
+  },
+  {
+    id: 'av_ecommerce_1',
+    image: '/avatars/ecommerce.jpg',
+    label: 'Sofía · Presentadora',
+    role: 'E-commerce & Ventas',
+    category: 'E-commerce / Ventas',
+  },
+  {
+    id: 'av_especial_1',
+    image: '/avatars/especial.jpg',
+    label: 'Kenji · Tech Founder',
+    role: 'Internacional · Multilingüe',
+    category: 'Especiales',
+  },
 ];
 
 const BACKGROUNDS = [
@@ -63,7 +84,7 @@ interface StudioPanelProps {
 
 export default function StudioPanel({ profile, onOpenAuth, onVideoCreated }: StudioPanelProps) {
   const [selectedCategory, setSelectedCategory] = useState<typeof AVATAR_CATEGORIES[number]>('Todos');
-  const [selectedAvatar, setSelectedAvatar] = useState('av_exec_m');
+  const [selectedAvatar, setSelectedAvatar] = useState('av_empresarial_1');
   const [selectedBg, setSelectedBg] = useState('bg_dark');
   const [customBgImage, setCustomBgImage] = useState<string | null>(null);
   const [selectedVoice, setSelectedVoice] = useState('es-ES-natural');
@@ -79,6 +100,7 @@ export default function StudioPanel({ profile, onOpenAuth, onVideoCreated }: Stu
   const [toast, setToast] = useState<{ msg: string; type: 'success' | 'error' } | null>(null);
   const [guestCredits, setGuestCredits] = useState<number>(() => getGuestCredits());
   const [lastCreatedVideoId, setLastCreatedVideoId] = useState<string | null>(null);
+  const [isCameraModalOpen, setIsCameraModalOpen] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const bgFileInputRef = useRef<HTMLInputElement>(null);
@@ -191,7 +213,7 @@ export default function StudioPanel({ profile, onOpenAuth, onVideoCreated }: Stu
 
     const videoTitle = title.trim() || `Avatar Reel - ${new Date().toLocaleDateString('es-ES')}`;
     const backgroundValue = customBgImage || currentBg.color;
-    const avatarValue = uploadedPhoto || currentAvatar.emoji;
+    const avatarValue = uploadedPhoto || currentAvatar.image;
 
     try {
       if (profile) {
@@ -347,7 +369,7 @@ export default function StudioPanel({ profile, onOpenAuth, onVideoCreated }: Stu
                 </div>
               </div>
 
-              <div style={{ display: 'flex', gap: 8 }}>
+              <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
                 {uploadedPhoto && (
                   <button
                     className="btn btn-ghost btn-sm"
@@ -360,8 +382,20 @@ export default function StudioPanel({ profile, onOpenAuth, onVideoCreated }: Stu
                 <button
                   className="btn btn-secondary btn-sm"
                   onClick={() => fileInputRef.current?.click()}
+                  style={{ display: 'flex', alignItems: 'center', gap: 4 }}
                 >
-                  {uploadedPhoto ? 'Cambiar Foto' : 'Subir Archivo'}
+                  📁 {uploadedPhoto ? 'Cambiar Archivo' : 'Subir Archivo'}
+                </button>
+                <button
+                  className="btn btn-primary btn-sm"
+                  onClick={() => setIsCameraModalOpen(true)}
+                  style={{
+                    display: 'flex', alignItems: 'center', gap: 4,
+                    background: 'linear-gradient(135deg, #ec4899, #8b5cf6)',
+                    borderColor: 'transparent'
+                  }}
+                >
+                  📷 Tomar con Cámara
                 </button>
                 <input
                   ref={fileInputRef}
@@ -387,8 +421,8 @@ export default function StudioPanel({ profile, onOpenAuth, onVideoCreated }: Stu
               ))}
             </div>
 
-            {/* Avatar Grid */}
-            <div className="avatar-grid" style={{ gridTemplateColumns: 'repeat(4, 1fr)' }}>
+            {/* Avatar Grid (8K Photorealistic Portraits) */}
+            <div className="avatar-grid" style={{ gridTemplateColumns: 'repeat(2, 1fr)', gap: 12 }}>
               {filteredAvatars.map(av => {
                 const isSelected = !uploadedPhoto && selectedAvatar === av.id;
                 return (
@@ -400,22 +434,52 @@ export default function StudioPanel({ profile, onOpenAuth, onVideoCreated }: Stu
                       setUploadedPhoto(null);
                     }}
                     style={{
-                      background: av.bg,
-                      display: 'flex',
-                      flexDirection: 'column',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      padding: 8,
-                      gap: 4
+                      position: 'relative',
+                      borderRadius: 16,
+                      overflow: 'hidden',
+                      border: isSelected ? '2px solid #8b5cf6' : '1px solid rgba(255,255,255,0.1)',
+                      boxShadow: isSelected ? '0 0 24px rgba(139, 92, 246, 0.45)' : 'none',
+                      cursor: 'pointer',
+                      background: '#0b0f1a',
+                      padding: 0,
+                      transition: 'all 0.2s ease',
                     }}
                   >
-                    <span style={{ fontSize: 28 }}>{av.emoji}</span>
-                    <span style={{ fontSize: 10, fontWeight: 700, color: '#fff', textAlign: 'center', lineHeight: 1.2 }}>
-                      {av.label.split('·')[0]}
-                    </span>
-                    <span style={{ fontSize: 8, color: 'rgba(255,255,255,0.6)' }}>
-                      {av.category}
-                    </span>
+                    <div style={{ position: 'relative', width: '100%', height: 130 }}>
+                      <img
+                        src={av.image}
+                        alt={av.label}
+                        style={{
+                          width: '100%',
+                          height: '100%',
+                          objectFit: 'cover',
+                          display: 'block',
+                        }}
+                      />
+                      <span style={{
+                        position: 'absolute',
+                        top: 8,
+                        right: 8,
+                        background: 'rgba(0,0,0,0.7)',
+                        backdropFilter: 'blur(4px)',
+                        color: '#a78bfa',
+                        fontSize: 9,
+                        fontWeight: 800,
+                        padding: '2px 6px',
+                        borderRadius: 10,
+                      }}>
+                        8K Ultra HD
+                      </span>
+                    </div>
+
+                    <div style={{ padding: '8px 10px' }}>
+                      <p style={{ fontSize: 12, fontWeight: 800, color: '#fff', margin: 0 }}>
+                        {av.label}
+                      </p>
+                      <p style={{ fontSize: 10, color: 'var(--text-muted)', margin: '2px 0 0' }}>
+                        {av.role}
+                      </p>
+                    </div>
                   </div>
                 );
               })}
@@ -742,15 +806,13 @@ export default function StudioPanel({ profile, onOpenAuth, onVideoCreated }: Stu
                   </div>
                 ) : (
                   <div style={{
-                    width: 100, height: 100, borderRadius: '50%',
-                    background: currentAvatar.bg,
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    fontSize: 46, border: '3px solid rgba(255,255,255,0.2)',
-                    boxShadow: '0 12px 35px rgba(0,0,0,0.6)',
-                    transform: isPlayingAudio ? 'scale(1.06)' : 'scale(1)',
+                    width: 130, height: 130, borderRadius: '50%', overflow: 'hidden',
+                    border: '3px solid rgba(139, 92, 246, 0.6)',
+                    boxShadow: '0 12px 35px rgba(0,0,0,0.8), 0 0 25px rgba(139, 92, 246, 0.4)',
+                    transform: isPlayingAudio ? 'scale(1.05)' : 'scale(1)',
                     transition: 'transform 0.2s ease'
                   }}>
-                    {currentAvatar.emoji}
+                    <img src={currentAvatar.image} alt="Avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                   </div>
                 )}
               </div>
@@ -841,6 +903,16 @@ export default function StudioPanel({ profile, onOpenAuth, onVideoCreated }: Stu
           {toast.msg}
         </div>
       )}
+
+      {/* Camera Capture Modal */}
+      <CameraCaptureModal
+        isOpen={isCameraModalOpen}
+        onClose={() => setIsCameraModalOpen(false)}
+        onCapture={(photoDataUrl) => {
+          setUploadedPhoto(photoDataUrl);
+          showToast('¡Foto capturada con la cámara con éxito!', 'success');
+        }}
+      />
     </>
   );
 }

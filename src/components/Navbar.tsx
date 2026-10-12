@@ -1,10 +1,11 @@
+// src/components/Navbar.tsx
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
-import { getGuestCredits } from '@/lib/credits';
+import Logo from './Logo';
 import type { Profile } from '@/types';
 
 interface NavbarProps {
@@ -15,12 +16,9 @@ export default function Navbar({ onOpenAuth }: NavbarProps) {
   const pathname = usePathname();
   const router = useRouter();
   const [profile, setProfile] = useState<Profile | null>(null);
-  const [guestCredits, setGuestCredits] = useState<number>(() => getGuestCredits());
   const [loading, setLoading] = useState(true);
-  const [showBanner, setShowBanner] = useState(true);
   const [isMegaMenuOpen, setIsMegaMenuOpen] = useState(false);
-
-  const megaMenuTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const menuTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     const supabase = createClient();
@@ -50,22 +48,13 @@ export default function Navbar({ onOpenAuth }: NavbarProps) {
           .single();
         if (isMounted) setProfile(data);
       } else {
-        if (isMounted) {
-          setProfile(null);
-          setGuestCredits(getGuestCredits());
-        }
+        if (isMounted) setProfile(null);
       }
     });
-
-    const handleStorage = () => {
-      if (isMounted) setGuestCredits(getGuestCredits());
-    };
-    window.addEventListener('storage', handleStorage);
 
     return () => {
       isMounted = false;
       subscription.unsubscribe();
-      window.removeEventListener('storage', handleStorage);
     };
   }, []);
 
@@ -76,388 +65,416 @@ export default function Navbar({ onOpenAuth }: NavbarProps) {
     router.push('/');
   };
 
-  const handleMouseEnterProducts = () => {
-    if (megaMenuTimeoutRef.current) clearTimeout(megaMenuTimeoutRef.current);
+  const handleMouseEnter = () => {
+    if (menuTimeoutRef.current) clearTimeout(menuTimeoutRef.current);
     setIsMegaMenuOpen(true);
   };
 
-  const handleMouseLeaveProducts = () => {
-    megaMenuTimeoutRef.current = setTimeout(() => {
-      setIsMegaMenuOpen(false);
-    }, 250);
+  const handleMouseLeave = () => {
+    menuTimeoutRef.current = setTimeout(() => setIsMegaMenuOpen(false), 220);
   };
 
   return (
-    <header style={{ position: 'sticky', top: 0, zIndex: 150 }}>
-      {/* 1. TOP ANNOUNCEMENT BANNER (AKOOL STYLE) */}
-      {showBanner && (
-        <div className="announcement-bar">
-          <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap', justifyContent: 'center' }}>
-            <span>🎬</span>
-            <span><strong>AvatarAI Creator Challenge</strong> está en vivo — Más de 10,000 créditos gratis repartidos.</span>
-            <Link href="/pricing" className="announcement-link">
-              Participar Ahora →
-            </Link>
-          </div>
-          <button
-            className="announcement-close"
-            onClick={() => setShowBanner(false)}
-            aria-label="Cerrar anuncio"
-          >
-            ✕
-          </button>
-        </div>
-      )}
-
-      {/* 2. MAIN NAVBAR */}
-      <nav className="navbar" style={{ position: 'relative' }}>
-        <div className="container navbar-inner">
-          {/* Logo */}
-          <Link href="/" className="nav-logo">
-            <div className="nav-logo-icon" style={{ background: 'linear-gradient(135deg, #6366f1 0%, #a855f7 50%, #ec4899 100%)' }}>
-              ✨
-            </div>
-            <span className="nav-logo-text" style={{ fontSize: 20, fontWeight: 900, letterSpacing: '-0.5px' }}>
-              <span style={{ color: '#fff' }}>Avatar</span><span style={{ color: '#a855f7' }}>AI</span>
-            </span>
+    <header style={{
+      position: 'sticky',
+      top: 0,
+      zIndex: 100,
+      width: '100%',
+      backgroundColor: 'rgba(9, 13, 22, 0.85)',
+      backdropFilter: 'blur(16px)',
+      borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
+    }}>
+      <div
+        className="container"
+        style={{
+          height: 64,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: 16,
+        }}
+      >
+        {/* LADO IZQUIERDO: LOGO + BOTÓN DROPDOWN DE PRODUCTOS */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 16, flexShrink: 0 }}>
+          <Link href="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center' }}>
+            <Logo size="sm" />
           </Link>
 
-          {/* Navigation Links with Mega-Menu Trigger */}
-          <div className="nav-links">
-            {/* Mega Menu Trigger: "Productos" / "Herramientas" */}
-            <div
-              onMouseEnter={handleMouseEnterProducts}
-              onMouseLeave={handleMouseLeaveProducts}
-              style={{ position: 'static' }}
+          {/* Menú Desplegable Productos */}
+          <div
+            onMouseEnter={handleMouseEnter}
+            onMouseLeave={handleMouseLeave}
+            style={{ position: 'relative' }}
+          >
+            <button
+              type="button"
+              onClick={() => setIsMegaMenuOpen(prev => !prev)}
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 6,
+                fontSize: 12,
+                fontWeight: 700,
+                color: isMegaMenuOpen ? '#ffffff' : '#cbd5e1',
+                background: isMegaMenuOpen ? 'rgba(255,255,255,0.08)' : 'rgba(255,255,255,0.03)',
+                border: '1px solid rgba(255,255,255,0.1)',
+                padding: '6px 12px',
+                borderRadius: 20,
+                cursor: 'pointer',
+                transition: 'all 0.15s ease',
+                whiteSpace: 'nowrap',
+              }}
             >
-              <button
-                type="button"
-                className={`nav-link ${isMegaMenuOpen ? 'active' : ''}`}
-                style={{ display: 'flex', alignItems: 'center', gap: 6 }}
-                onClick={() => setIsMegaMenuOpen(prev => !prev)}
+              <span>Productos</span>
+              <span style={{
+                fontSize: 9,
+                fontWeight: 900,
+                background: '#ef4444',
+                color: '#fff',
+                padding: '1px 5px',
+                borderRadius: 10,
+                letterSpacing: '0.5px'
+              }}>
+                NUEVO
+              </span>
+              <span style={{ fontSize: 9, opacity: 0.6 }}>▼</span>
+            </button>
+
+            {/* MEGA MENU DROPDOWN (4 COLUMNS EXACTLY AS SPECIFIED) */}
+            {isMegaMenuOpen && (
+              <div
+                className="mega-menu-container"
+                onMouseEnter={handleMouseEnter}
+                onMouseLeave={handleMouseLeave}
+                style={{
+                  position: 'absolute',
+                  top: '100%',
+                  left: 0,
+                  marginTop: 8,
+                  zIndex: 200,
+                  width: 880,
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(4, 1fr)',
+                  gap: 16,
+                  padding: 20,
+                  background: 'rgba(11, 15, 26, 0.96)',
+                  backdropFilter: 'blur(20px)',
+                  border: '1px solid rgba(255, 255, 255, 0.12)',
+                  borderRadius: 18,
+                  boxShadow: '0 25px 60px rgba(0,0,0,0.85), 0 0 40px rgba(99,102,241,0.15)'
+                }}
               >
-                <span>Productos</span>
-                <span style={{
-                  fontSize: 10, fontWeight: 800, padding: '2px 6px',
-                  borderRadius: 10, background: '#ef4444', color: '#fff', textTransform: 'uppercase'
-                }}>
-                  Nuevo
-                </span>
-                <span style={{ fontSize: 10, opacity: 0.7 }}>{isMegaMenuOpen ? '▲' : '▼'}</span>
-              </button>
-
-              {/* AKOOL-STYLE MEGA-MENU DROPDOWN */}
-              {isMegaMenuOpen && (
-                <div
-                  className="mega-menu-container"
-                  onMouseEnter={handleMouseEnterProducts}
-                  onMouseLeave={handleMouseLeaveProducts}
-                >
-                  {/* Left Column: Featured Highlight Cards */}
-                  <div className="mega-featured-col">
-                    <p style={{ fontSize: 12, fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: 6 }}>
-                      Herramientas Destacadas
-                    </p>
-
-                    <Link href="/studio" className="mega-featured-card" onClick={() => setIsMegaMenuOpen(false)}>
-                      <div className="mega-featured-icon">📱</div>
-                      <div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                          <span style={{ fontSize: 13, fontWeight: 800 }}>Imagen a Video 9:16</span>
-                          <span className="mega-badge mega-badge-hot">Caliente</span>
-                        </div>
-                        <p style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 2 }}>
-                          Convierte fotos en videos verticales TikTok & Reels con lip-sync.
-                        </p>
+                {/* 1. EN VIVO */}
+                <div>
+                  <h4 style={{ fontSize: 11, fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 10 }}>
+                    En Vivo
+                  </h4>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                    <Link href="/studio/camara-en-vivo" className="mega-item" onClick={() => setIsMegaMenuOpen(false)}>
+                      <div className="mega-item-header">
+                        <span className="mega-item-title">📹 Cámara en Vivo</span>
+                        <span className="mega-badge mega-badge-new">Nuevo</span>
                       </div>
+                      <p className="mega-item-desc">Editor de cámara interactiva con fondos y filtros.</p>
                     </Link>
-
-                    <Link href="/live" className="mega-featured-card" onClick={() => setIsMegaMenuOpen(false)}>
-                      <div className="mega-featured-icon" style={{ background: 'linear-gradient(135deg, #ec4899, #8b5cf6)' }}>🔴</div>
-                      <div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                          <span style={{ fontSize: 13, fontWeight: 800 }}>Avatar en Streaming</span>
-                          <span className="mega-badge mega-badge-new">Nuevo</span>
-                        </div>
-                        <p style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 2 }}>
-                          Interacción por voz y WebRTC en directo con latencia &lt;300ms.
-                        </p>
+                    <Link href="/studio/avatar-streaming" className="mega-item" onClick={() => setIsMegaMenuOpen(false)}>
+                      <div className="mega-item-header">
+                        <span className="mega-item-title">🔴 Avatar Streaming</span>
                       </div>
+                      <p className="mega-item-desc">Interacción en directo con micrófono y chat.</p>
                     </Link>
-
-                    <Link href="/studio" className="mega-featured-card" onClick={() => setIsMegaMenuOpen(false)}>
-                      <div className="mega-featured-icon" style={{ background: 'linear-gradient(135deg, #10b981, #06b6d4)' }}>🗣️</div>
-                      <div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                          <span style={{ fontSize: 13, fontWeight: 800 }}>Clon de Voz & TTS</span>
-                          <span className="mega-badge mega-badge-unlimited">Ilimitado</span>
-                        </div>
-                        <p style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 2 }}>
-                          Clonación de voz con ElevenLabs y síntesis de audio natural.
-                        </p>
+                    <Link href="/studio/agente-ventas" className="mega-item" onClick={() => setIsMegaMenuOpen(false)}>
+                      <div className="mega-item-header">
+                        <span className="mega-item-title">🤖 Agente de Ventas</span>
                       </div>
+                      <p className="mega-item-desc">Soporte comercial con avatar conversacional.</p>
                     </Link>
-
-                    <Link href="/studio" className="mega-featured-card" onClick={() => setIsMegaMenuOpen(false)}>
-                      <div className="mega-featured-icon" style={{ background: 'linear-gradient(135deg, #f59e0b, #ef4444)' }}>🎭</div>
-                      <div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                          <span style={{ fontSize: 13, fontWeight: 800 }}>Face Swap & Rostros</span>
-                        </div>
-                        <p style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 2 }}>
-                          Animación e intercambio de rostros con calidad de estudio.
-                        </p>
+                    <Link href="/studio/face-swap-live" className="mega-item" onClick={() => setIsMegaMenuOpen(false)}>
+                      <div className="mega-item-header">
+                        <span className="mega-item-title">🔄 Face Swap Live</span>
                       </div>
+                      <p className="mega-item-desc">Reemplazo facial sobre streaming WebRTC.</p>
                     </Link>
-                  </div>
-
-                  {/* Right Columns: Tool Categories Grid */}
-                  <div className="mega-columns-grid">
-                    {/* Col 1: En Vivo */}
-                    <div>
-                      <h4 className="mega-col-title">En Vivo</h4>
-                      <Link href="/live" className="mega-item" onClick={() => setIsMegaMenuOpen(false)}>
-                        <div className="mega-item-header">
-                          <span className="mega-item-title">📹 Cámara en Vivo</span>
-                          <span className="mega-badge mega-badge-new">Nuevo</span>
-                        </div>
-                        <p className="mega-item-desc">Interpretación simultánea con IA y lip-sync realista.</p>
-                      </Link>
-
-                      <Link href="/live" className="mega-item" onClick={() => setIsMegaMenuOpen(false)}>
-                        <div className="mega-item-header">
-                          <span className="mega-item-title">🔴 Avatar Streaming</span>
-                        </div>
-                        <p className="mega-item-desc">Interacción en tiempo real por micrófono y chat.</p>
-                      </Link>
-
-                      <Link href="/live" className="mega-item" onClick={() => setIsMegaMenuOpen(false)}>
-                        <div className="mega-item-header">
-                          <span className="mega-item-title">🤖 Agente de Soporte & Ventas</span>
-                        </div>
-                        <p className="mega-item-desc">Atención al cliente con avatar conversacional.</p>
-                      </Link>
-
-                      <Link href="/live" className="mega-item" onClick={() => setIsMegaMenuOpen(false)}>
-                        <div className="mega-item-header">
-                          <span className="mega-item-title">🔄 Face Swap en Directo</span>
-                        </div>
-                        <p className="mega-item-desc">Reemplazo facial en streaming WebRTC.</p>
-                      </Link>
-                    </div>
-
-                    {/* Col 2: Vídeo */}
-                    <div>
-                      <h4 className="mega-col-title">Vídeo</h4>
-                      <Link href="/studio" className="mega-item" onClick={() => setIsMegaMenuOpen(false)}>
-                        <div className="mega-item-header">
-                          <span className="mega-item-title">🗣️ Avatar Parlante</span>
-                          <span className="mega-badge mega-badge-unlimited">Ilimitado</span>
-                        </div>
-                        <p className="mega-item-desc">Sincroniza labios de cualquier foto con tu guión.</p>
-                      </Link>
-
-                      <Link href="/studio" className="mega-item" onClick={() => setIsMegaMenuOpen(false)}>
-                        <div className="mega-item-header">
-                          <span className="mega-item-title">📱 Formato Vertical 9:16</span>
-                          <span className="mega-badge mega-badge-hot">Caliente</span>
-                        </div>
-                        <p className="mega-item-desc">Optimizado para retención en TikTok y Reels.</p>
-                      </Link>
-
-                      <Link href="/studio" className="mega-item" onClick={() => setIsMegaMenuOpen(false)}>
-                        <div className="mega-item-header">
-                          <span className="mega-item-title">📄 Convertir Guión a Video</span>
-                        </div>
-                        <p className="mega-item-desc">Generación con prompts estructurados de IA.</p>
-                      </Link>
-
-                      <Link href="/studio" className="mega-item" onClick={() => setIsMegaMenuOpen(false)}>
-                        <div className="mega-item-header">
-                          <span className="mega-item-title">🎬 Video a Video</span>
-                        </div>
-                        <p className="mega-item-desc">Reimagina estilo y presentador de tu video.</p>
-                      </Link>
-                    </div>
-
-                    {/* Col 3: Audio & Voz */}
-                    <div>
-                      <h4 className="mega-col-title">Audio & Voz</h4>
-                      <Link href="/studio" className="mega-item" onClick={() => setIsMegaMenuOpen(false)}>
-                        <div className="mega-item-header">
-                          <span className="mega-item-title">🎙️ Texto a Voz Natural</span>
-                        </div>
-                        <p className="mega-item-desc">Voces nativas en español de España, México y más.</p>
-                      </Link>
-
-                      <Link href="/pricing" className="mega-item" onClick={() => setIsMegaMenuOpen(false)}>
-                        <div className="mega-item-header">
-                          <span className="mega-item-title">🧬 Clon de Voz</span>
-                          <span className="mega-badge mega-badge-new">ElevenLabs</span>
-                        </div>
-                        <p className="mega-item-desc">Clona tu propia voz con 1 minuto de audio.</p>
-                      </Link>
-
-                      <Link href="/studio" className="mega-item" onClick={() => setIsMegaMenuOpen(false)}>
-                        <div className="mega-item-header">
-                          <span className="mega-item-title">💬 Subtítulos Estilo TikTok</span>
-                        </div>
-                        <p className="mega-item-desc">Subtítulos animados de alto impacto visual.</p>
-                      </Link>
-
-                      <Link href="/studio" className="mega-item" onClick={() => setIsMegaMenuOpen(false)}>
-                        <div className="mega-item-header">
-                          <span className="mega-item-title">🎧 Música de Fondo B-Roll</span>
-                        </div>
-                        <p className="mega-item-desc">Pistas de fondo sin copyright para redes.</p>
-                      </Link>
-                    </div>
-
-                    {/* Col 4: Imagen & Fondos */}
-                    <div>
-                      <h4 className="mega-col-title">Imagen & Fondos</h4>
-                      <Link href="/studio" className="mega-item" onClick={() => setIsMegaMenuOpen(false)}>
-                        <div className="mega-item-header">
-                          <span className="mega-item-title">🖼️ Cambio de Fondo</span>
-                        </div>
-                        <p className="mega-item-desc">Estudios oscuros, gradientes o sube tu imagen.</p>
-                      </Link>
-
-                      <Link href="/studio" className="mega-item" onClick={() => setIsMegaMenuOpen(false)}>
-                        <div className="mega-item-header">
-                          <span className="mega-item-title">📸 Retrato Personalizado</span>
-                        </div>
-                        <p className="mega-item-desc">Animación de selfies y fotos corporativas.</p>
-                      </Link>
-
-                      <Link href="/library" className="mega-item" onClick={() => setIsMegaMenuOpen(false)}>
-                        <div className="mega-item-header">
-                          <span className="mega-item-title">📁 Gestor de Videos</span>
-                        </div>
-                        <p className="mega-item-desc">Descargas MP4 y compartición rápida.</p>
-                      </Link>
-
-                      <Link href="/pricing" className="mega-item" onClick={() => setIsMegaMenuOpen(false)}>
-                        <div className="mega-item-header">
-                          <span className="mega-item-title">⚡ API para Empresas</span>
-                        </div>
-                        <p className="mega-item-desc">Automatiza miles de videos con API REST.</p>
-                      </Link>
-                    </div>
                   </div>
                 </div>
-              )}
-            </div>
 
-            {/* Direct Navigation Links */}
-            <Link
-              href="/studio"
-              className={`nav-link${pathname === '/studio' ? ' active' : ''}`}
-            >
-              Studio 9:16
-            </Link>
-
-            <Link
-              href="/live"
-              className={`nav-link${pathname === '/live' ? ' active' : ''}`}
-            >
-              Avatar en Vivo
-            </Link>
-
-            <Link
-              href="/library"
-              className={`nav-link${pathname === '/library' ? ' active' : ''}`}
-            >
-              Biblioteca
-            </Link>
-
-            <Link
-              href="/pricing"
-              className={`nav-link${pathname === '/pricing' ? ' active' : ''}`}
-            >
-              Precios
-            </Link>
-          </div>
-
-          {/* Right Header Actions (Akool Style) */}
-          <div className="nav-actions">
-            {/* Language Selector */}
-            <div style={{
-              display: 'flex', alignItems: 'center', gap: 4,
-              fontSize: 12, color: 'var(--text-secondary)', cursor: 'pointer', padding: '6px 8px'
-            }}>
-              <span>🌐</span>
-              <span style={{ fontWeight: 600 }}>ES</span>
-            </div>
-
-            {!loading && (
-              profile ? (
-                <>
-                  <Link href="/pricing" style={{ textDecoration: 'none' }}>
-                    <div className="credits-chip" title="Haz clic para recargar créditos">
-                      <span>⚡</span>
-                      <span>{profile.credits_remaining} créditos</span>
-                    </div>
-                  </Link>
-
-                  <div style={{
-                    display: 'flex', alignItems: 'center', gap: '8px',
-                    padding: '6px 12px', borderRadius: '10px',
-                    background: 'var(--bg-glass)', border: '1px solid var(--border-subtle)',
-                    fontSize: '13px', fontWeight: 600
-                  }}>
-                    <div style={{
-                      width: 28, height: 28, borderRadius: '50%',
-                      background: 'var(--gradient-primary)',
-                      display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      fontSize: 12, fontWeight: 700, color: '#fff'
-                    }}>
-                      {(profile.full_name || profile.email || 'U')[0].toUpperCase()}
-                    </div>
-                    <span style={{ color: 'var(--text-secondary)', maxWidth: 100, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                      {profile.full_name || profile.email?.split('@')[0]}
-                    </span>
+                {/* 2. VÍDEO */}
+                <div>
+                  <h4 style={{ fontSize: 11, fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 10 }}>
+                    Vídeo
+                  </h4>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                    <Link href="/studio/imagen-a-video" className="mega-item" onClick={() => setIsMegaMenuOpen(false)}>
+                      <div className="mega-item-header">
+                        <span className="mega-item-title">📱 Imagen a Video</span>
+                        <span className="mega-badge mega-badge-hot">9:16</span>
+                      </div>
+                      <p className="mega-item-desc">Convierte fotos en videos con lip-sync.</p>
+                    </Link>
+                    <Link href="/studio/avatar-parlante" className="mega-item" onClick={() => setIsMegaMenuOpen(false)}>
+                      <div className="mega-item-header">
+                        <span className="mega-item-title">🗣️ Avatar Parlante</span>
+                      </div>
+                      <p className="mega-item-desc">Presentador virtual con guión de texto.</p>
+                    </Link>
+                    <Link href="/studio/formato-vertical" className="mega-item" onClick={() => setIsMegaMenuOpen(false)}>
+                      <div className="mega-item-header">
+                        <span className="mega-item-title">📐 Formato Vertical</span>
+                      </div>
+                      <p className="mega-item-desc">Optimizado para retención en TikTok y Reels.</p>
+                    </Link>
+                    <Link href="/studio/guion-a-video" className="mega-item" onClick={() => setIsMegaMenuOpen(false)}>
+                      <div className="mega-item-header">
+                        <span className="mega-item-title">📄 Guión a Video</span>
+                      </div>
+                      <p className="mega-item-desc">Historias estructuradas con prompts de IA.</p>
+                    </Link>
+                    <Link href="/studio/video-a-video" className="mega-item" onClick={() => setIsMegaMenuOpen(false)}>
+                      <div className="mega-item-header">
+                        <span className="mega-item-title">🎬 Video a Video</span>
+                      </div>
+                      <p className="mega-item-desc">Reimagina estilo y presentador de tu video.</p>
+                    </Link>
                   </div>
-                  <button className="btn btn-ghost btn-sm" onClick={handleLogout}>Salir</button>
-                </>
-              ) : (
-                <>
-                  {/* Akool Gold "Prueba gratuita" chip */}
-                  <Link href="/studio" style={{ textDecoration: 'none' }}>
-                    <div style={{
-                      display: 'inline-flex', alignItems: 'center', gap: 6,
-                      padding: '7px 14px', borderRadius: 20,
-                      background: 'linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%)',
-                      color: '#000', fontSize: 13, fontWeight: 800, cursor: 'pointer',
-                      boxShadow: '0 2px 10px rgba(245, 158, 11, 0.3)'
-                    }}>
-                      <span>🎁</span>
-                      <span>Prueba gratuita ({guestCredits})</span>
-                    </div>
-                  </Link>
+                </div>
 
-                  <button className="btn btn-ghost btn-sm" onClick={() => onOpenAuth?.('login')}>
-                    Iniciar sesión
-                  </button>
+                {/* 3. AUDIO & VOZ */}
+                <div>
+                  <h4 style={{ fontSize: 11, fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 10 }}>
+                    Audio & Voz
+                  </h4>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                    <Link href="/studio/texto-a-voz" className="mega-item" onClick={() => setIsMegaMenuOpen(false)}>
+                      <div className="mega-item-header">
+                        <span className="mega-item-title">🎙️ Texto a Voz (TTS)</span>
+                      </div>
+                      <p className="mega-item-desc">Voces nativas en español (varios acentos).</p>
+                    </Link>
+                    <Link href="/studio/clon-de-voz" className="mega-item" onClick={() => setIsMegaMenuOpen(false)}>
+                      <div className="mega-item-header">
+                        <span className="mega-item-title">🧬 Clon de Voz</span>
+                        <span className="mega-badge mega-badge-new">ElevenLabs</span>
+                      </div>
+                      <p className="mega-item-desc">Clona tu voz con 30s de muestra de audio.</p>
+                    </Link>
+                    <Link href="/studio/subtitulos-tiktok" className="mega-item" onClick={() => setIsMegaMenuOpen(false)}>
+                      <div className="mega-item-header">
+                        <span className="mega-item-title">💬 Subtítulos TikTok</span>
+                      </div>
+                      <p className="mega-item-desc">Subtítulos dinámicos de alto contraste.</p>
+                    </Link>
+                    <Link href="/studio/efectos-sonido" className="mega-item" onClick={() => setIsMegaMenuOpen(false)}>
+                      <div className="mega-item-header">
+                        <span className="mega-item-title">🎧 Efectos de Sonido</span>
+                      </div>
+                      <p className="mega-item-desc">Efectos SFX instantáneos para directos.</p>
+                    </Link>
+                  </div>
+                </div>
 
-                  {/* Akool Violet Pill "Inscríbase" Button */}
-                  <button
-                    className="btn btn-primary btn-sm"
-                    style={{
-                      borderRadius: 20, padding: '8px 18px',
-                      background: 'linear-gradient(135deg, #7c3aed 0%, #6366f1 100%)',
-                      boxShadow: '0 4px 15px rgba(124, 58, 237, 0.4)'
-                    }}
-                    onClick={() => onOpenAuth?.('register')}
-                  >
-                    Inscríbase
-                  </button>
-                </>
-              )
+                {/* 4. IMAGEN & FONDOS & API */}
+                <div>
+                  <h4 style={{ fontSize: 11, fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 10 }}>
+                    Imagen & API
+                  </h4>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                    <Link href="/studio/cambio-de-fondo" className="mega-item" onClick={() => setIsMegaMenuOpen(false)}>
+                      <div className="mega-item-header">
+                        <span className="mega-item-title">🖼️ Cambio de Fondo</span>
+                      </div>
+                      <p className="mega-item-desc">Estudios oscuros, gradientes o imagen propia.</p>
+                    </Link>
+                    <Link href="/studio/retrato-personalizado" className="mega-item" onClick={() => setIsMegaMenuOpen(false)}>
+                      <div className="mega-item-header">
+                        <span className="mega-item-title">📸 Retrato Face Swap</span>
+                      </div>
+                      <p className="mega-item-desc">Intercambio de rostros en alta resolución.</p>
+                    </Link>
+                    <Link href="/gestor-videos" className="mega-item" onClick={() => setIsMegaMenuOpen(false)}>
+                      <div className="mega-item-header">
+                        <span className="mega-item-title">📁 Gestor de Videos</span>
+                      </div>
+                      <p className="mega-item-desc">Historial de descargas MP4 y compartición.</p>
+                    </Link>
+                    <Link href="/api-docs" className="mega-item" onClick={() => setIsMegaMenuOpen(false)}>
+                      <div className="mega-item-header">
+                        <span className="mega-item-title">⚡ API Docs</span>
+                        <span className="mega-badge mega-badge-unlimited">REST</span>
+                      </div>
+                      <p className="mega-item-desc">Automatización de video para empresas.</p>
+                    </Link>
+                  </div>
+                </div>
+              </div>
             )}
           </div>
         </div>
-      </nav>
+
+        {/* CENTRO: NAVEGACIÓN EN UNA SOLA LÍNEA (4-5 ENLACES CLAVE) */}
+        <nav style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 22,
+          fontSize: 13,
+          fontWeight: 600,
+          color: '#94a3b8',
+          whiteSpace: 'nowrap',
+        }}>
+          <Link
+            href="/studio"
+            style={{
+              color: pathname.startsWith('/studio') && !pathname.includes('avatar-streaming') && !pathname.includes('imagen-a-video') ? '#ffffff' : '#94a3b8',
+              textDecoration: 'none',
+              transition: 'color 0.15s ease'
+            }}
+          >
+            Studio 9:16
+          </Link>
+
+          <Link
+            href="/studio/avatar-streaming"
+            style={{
+              color: pathname.includes('avatar-streaming') ? '#ffffff' : '#94a3b8',
+              textDecoration: 'none',
+              transition: 'color 0.15s ease'
+            }}
+          >
+            En Vivo
+          </Link>
+
+          <Link
+            href="/studio/imagen-a-video"
+            style={{
+              color: pathname.includes('imagen-a-video') ? '#ffffff' : '#94a3b8',
+              textDecoration: 'none',
+              transition: 'color 0.15s ease'
+            }}
+          >
+            Herramientas IA
+          </Link>
+
+          <Link
+            href="/gestor-videos"
+            style={{
+              color: pathname === '/gestor-videos' || pathname === '/library' ? '#ffffff' : '#94a3b8',
+              textDecoration: 'none',
+              transition: 'color 0.15s ease'
+            }}
+          >
+            Biblioteca
+          </Link>
+
+          <Link
+            href="/precios"
+            style={{
+              color: pathname === '/precios' || pathname === '/pricing' ? '#ffffff' : '#94a3b8',
+              textDecoration: 'none',
+              transition: 'color 0.15s ease'
+            }}
+          >
+            Precios
+          </Link>
+        </nav>
+
+        {/* LADO DERECHO: ACCIONES UNIFICADAS Y ELEGANTES */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexShrink: 0 }}>
+          {/* Selector de Idioma Minimalista */}
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 4,
+            fontSize: 12,
+            color: '#64748b',
+            cursor: 'pointer',
+            padding: '4px 6px',
+            userSelect: 'none'
+          }}>
+            <span>🌐</span>
+            <span style={{ fontWeight: 600 }}>ES</span>
+          </div>
+
+          {!loading && (
+            profile ? (
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                {/* Badge Sobrio de Estado */}
+                <Link href="/precios" style={{ textDecoration: 'none' }}>
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 5,
+                    fontSize: 12,
+                    fontWeight: 700,
+                    color: '#c084fc',
+                    background: 'rgba(168, 85, 247, 0.1)',
+                    border: '1px solid rgba(168, 85, 247, 0.25)',
+                    padding: '4px 10px',
+                    borderRadius: 14
+                  }}>
+                    <span>⚡</span>
+                    <span>{profile.credits_remaining} Créditos</span>
+                  </div>
+                </Link>
+
+                <div style={{
+                  width: 32,
+                  height: 32,
+                  borderRadius: '50%',
+                  background: 'linear-gradient(135deg, #6366f1, #a855f7)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: 13,
+                  fontWeight: 800,
+                  color: '#fff'
+                }}>
+                  {(profile.full_name || profile.email || 'U')[0].toUpperCase()}
+                </div>
+
+                <button
+                  className="btn btn-ghost btn-xs"
+                  onClick={handleLogout}
+                  style={{ color: '#94a3b8', fontSize: 12 }}
+                >
+                  Salir
+                </button>
+              </div>
+            ) : (
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                <Link
+                  href="/login"
+                  style={{
+                    color: '#cbd5e1',
+                    fontSize: 13,
+                    fontWeight: 600,
+                    textDecoration: 'none',
+                    padding: '6px 12px',
+                  }}
+                >
+                  Iniciar Sesión
+                </Link>
+
+                {/* Botón Único Elegante: Empezar Gratis */}
+                <Link
+                  href="/registro"
+                  className="btn btn-primary btn-sm"
+                  style={{
+                    borderRadius: 10,
+                    padding: '8px 18px',
+                    fontSize: 13,
+                    fontWeight: 700,
+                    background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
+                    boxShadow: '0 4px 14px rgba(99, 102, 241, 0.35)',
+                    textDecoration: 'none',
+                    color: '#ffffff'
+                  }}
+                >
+                  Empezar Gratis
+                </Link>
+              </div>
+            )
+          )}
+        </div>
+      </div>
     </header>
   );
 }

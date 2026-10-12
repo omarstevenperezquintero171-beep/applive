@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import Navbar from '@/components/Navbar';
 import StudioPanel from '@/components/StudioPanel';
 import AuthModal from '@/components/AuthModal';
@@ -98,29 +99,20 @@ export default function StudioPage() {
       <Navbar onOpenAuth={(tab) => setAuthModal({ open: true, tab })} />
 
       <div className="container" style={{ paddingTop: 8, paddingBottom: 24 }}>
-        {/* Guest Banner */}
-        {!loadingProfile && !profile && (
-          <div style={{
-            background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.3)',
-            borderRadius: 14, padding: '14px 20px', marginBottom: 20,
-            display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap'
-          }}>
-            <div>
-              <p style={{ fontSize: 14, fontWeight: 700, color: '#fbbf24', marginBottom: 2 }}>
-                ⚡ Modo Invitado — Te quedan {guestCredits} de 3 videos de prueba gratuitos
-              </p>
-              <p style={{ fontSize: 12, color: 'var(--text-muted)' }}>
-                Genera tu video ahora sin registrarte. Crea una cuenta gratis para guardarlos en la nube y activar funciones ilimitadas.
-              </p>
-            </div>
-            <button
-              className="btn btn-primary btn-sm"
-              onClick={() => setAuthModal({ open: true, tab: 'register' })}
-            >
-              Crear Cuenta Gratis (3 Créditos)
-            </button>
+        {/* Clean Studio Workspace Header */}
+        <div style={{ marginBottom: 20, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div>
+            <h1 style={{ fontSize: 24, fontWeight: 900, margin: 0 }}>
+              Studio <span className="text-gradient">9:16</span>
+            </h1>
+            <p style={{ fontSize: 13, color: 'var(--text-secondary)', margin: '4px 0 0' }}>
+              Creación de videos verticales con avatares de IA para TikTok, Instagram Reels y YouTube Shorts
+            </p>
           </div>
-        )}
+          <Link href="/precios" className="btn btn-secondary btn-xs" style={{ borderRadius: 8 }}>
+            Planes & Créditos →
+          </Link>
+        </div>
 
         <div className="studio-layout">
           {/* LEFT: Controls & Preview */}
@@ -153,7 +145,7 @@ export default function StudioPage() {
               </div>
               <button
                 className="btn btn-secondary btn-sm w-full"
-                onClick={() => router.push('/pricing')}
+                onClick={() => router.push('/precios')}
               >
                 ⚡ Recargar o Suscribirse
               </button>

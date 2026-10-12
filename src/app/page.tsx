@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import Navbar from '@/components/Navbar';
+import Footer from '@/components/Footer';
 import AuthModal from '@/components/AuthModal';
 
 const HERO_TAGS = [
@@ -238,82 +239,144 @@ export default function HomePage() {
               </div>
 
               <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginTop: 24, fontSize: 13, color: 'var(--text-muted)' }}>
-                <span>🎁 3 videos gratis al instante</span>
+                <span>⚡ Calidad de Estudio 4K</span>
                 <span>•</span>
-                <span>⚡ Sin tarjeta de crédito</span>
+                <span>🔒 Sin marcas de agua</span>
                 <span>•</span>
-                <span>📱 Formato vertical TikTok & Reels</span>
+                <span>📱 Formato 9:16 optimizado</span>
               </div>
             </div>
 
-            {/* RIGHT: AKOOL 3D VISUAL GRAPHIC STAGE */}
+            {/* RIGHT: REALISTIC SMARTPHONE / 9:16 VIDEO PLAYER MOCKUP */}
             <div style={{ display: 'flex', justifyContent: 'center' }}>
-              <div className="hero-3d-stage">
-                {/* Back card */}
-                <div className="stage-card-back">
-                  <span style={{ fontSize: 44, marginBottom: 12 }}>🎙️</span>
-                  <p style={{ fontSize: 13, fontWeight: 700, color: '#fff' }}>ElevenLabs Voices</p>
-                  <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.6)', marginTop: 4 }}>Clonación en 60s</p>
-                  <div style={{ marginTop: 20, display: 'flex', gap: 4 }}>
-                    {[16, 28, 42, 30, 20, 36, 18, 40].map((h, idx) => (
-                      <div key={idx} style={{ width: 4, height: h, borderRadius: 2, background: 'var(--primary-light)' }} />
-                    ))}
-                  </div>
-                </div>
+              <div style={{
+                position: 'relative',
+                width: 310,
+                height: 550,
+                borderRadius: 36,
+                padding: 10,
+                background: 'linear-gradient(145deg, #1e293b, #0f172a)',
+                border: '1px solid rgba(255,255,255,0.15)',
+                boxShadow: '0 30px 80px rgba(0,0,0,0.9), 0 0 50px rgba(99,102,241,0.25)',
+              }}>
+                {/* Phone Inner Screen */}
+                <div style={{
+                  position: 'relative',
+                  width: '100%',
+                  height: '100%',
+                  borderRadius: 28,
+                  overflow: 'hidden',
+                  background: '#020617',
+                }}>
+                  {/* Photorealistic 8K Video Frame */}
+                  <img
+                    src="/hero-preview.jpg"
+                    alt="Presentadora IA en formato 9:16"
+                    style={{
+                      width: '100%',
+                      height: '100%',
+                      objectFit: 'cover',
+                      display: 'block',
+                    }}
+                  />
 
-                {/* Toroid rings */}
-                <div className="stage-ring" />
-
-                {/* Front main card */}
-                <div className="stage-card-front">
-                  {/* Top status */}
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <div style={{
-                      padding: '4px 10px', borderRadius: 20,
-                      background: 'rgba(239, 68, 68, 0.85)',
-                      fontSize: 11, fontWeight: 800, color: '#fff', display: 'flex', alignItems: 'center', gap: 6
-                    }}>
-                      <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#fff' }} />
-                      STREAMING EN VIVO
-                    </div>
-                    <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.6)' }}>Latencia: 240ms</span>
-                  </div>
-
-                  {/* Character Avatar Center */}
-                  <div style={{ textAlign: 'center', margin: 'auto 0' }}>
-                    <div style={{
-                      width: 100, height: 100, borderRadius: '50%',
-                      background: 'linear-gradient(135deg, #1e3a5f, #2d6a9f)',
-                      display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-                      fontSize: 50, border: '3px solid rgba(255,255,255,0.3)',
-                      boxShadow: '0 10px 40px rgba(0,0,0,0.8)',
-                      animation: 'pulse 2s infinite'
-                    }}>
-                      👨‍💼
-                    </div>
-
-                    <h4 style={{ fontSize: 16, fontWeight: 800, color: '#fff', marginTop: 12 }}>Carlos · Closer IA</h4>
-                    <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.7)', marginTop: 2 }}>
-                      Respondiendo en tiempo real por WebRTC
-                    </p>
-                  </div>
-
-                  {/* Bottom Speech Balloon */}
+                  {/* Gradient Overlay for Subtitles & HUD */}
                   <div style={{
-                    padding: '10px 14px', borderRadius: 14,
-                    background: 'rgba(0,0,0,0.65)', border: '1px solid rgba(255,255,255,0.15)',
-                    backdropFilter: 'blur(8px)'
+                    position: 'absolute',
+                    inset: 0,
+                    background: 'linear-gradient(180deg, rgba(0,0,0,0.4) 0%, transparent 35%, rgba(0,0,0,0.85) 100%)',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'space-between',
+                    padding: 16,
                   }}>
-                    <p style={{ fontSize: 11, fontWeight: 700, color: '#fef08a', lineHeight: 1.4 }}>
-                      &ldquo;¡Hola! Estoy listo para presentar tus productos en TikTok y cerrar más ventas.&rdquo;
-                    </p>
-                  </div>
+                    {/* Top HUD: Live Badge & Audio Pill */}
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <div style={{
+                        background: '#ef4444',
+                        color: '#fff',
+                        fontSize: 10,
+                        fontWeight: 900,
+                        padding: '3px 8px',
+                        borderRadius: 20,
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 4,
+                        letterSpacing: '0.5px',
+                        boxShadow: '0 2px 8px rgba(239,68,68,0.5)',
+                      }}>
+                        <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#fff' }} />
+                        EN VIVO
+                      </div>
+
+                      <div style={{
+                        background: 'rgba(0,0,0,0.5)',
+                        backdropFilter: 'blur(8px)',
+                        color: '#38bdf8',
+                        fontSize: 10,
+                        fontWeight: 700,
+                        padding: '3px 10px',
+                        borderRadius: 20,
+                      }}>
+                        ⚡ Latencia 240ms
+                      </div>
+                    </div>
+
+                    {/* Bottom HUD: TikTok Style Dynamic Subtitles */}
+                    <div>
+                      {/* Subtitle Box with High Contrast Highlighting */}
+                      <div style={{
+                        background: 'rgba(0, 0, 0, 0.75)',
+                        backdropFilter: 'blur(10px)',
+                        border: '1px solid rgba(255,255,255,0.12)',
+                        borderRadius: 14,
+                        padding: '10px 14px',
+                        marginBottom: 10,
+                      }}>
+                        <p style={{
+                          margin: 0,
+                          fontSize: 13,
+                          fontWeight: 800,
+                          color: '#ffffff',
+                          lineHeight: 1.4,
+                          textShadow: '0 2px 4px rgba(0,0,0,0.8)',
+                        }}>
+                          &ldquo;Crea contenido para TikTok con <span style={{ color: '#facc15' }}>avatares de IA fotorrealistas</span> en segundos.&rdquo;
+                        </p>
+                      </div>
+
+                      {/* Presenter Name & Sound Wave */}
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <div>
+                          <p style={{ margin: 0, fontSize: 12, fontWeight: 800, color: '#fff' }}>
+                            Elena · Presentadora Pro
+                          </p>
+                          <p style={{ margin: 0, fontSize: 10, color: 'rgba(255,255,255,0.6)' }}>
+                            Voz Nativa Español · ElevenLabs
+                          </p>
+                        </div>
+                        <div style={{ display: 'flex', gap: 3, alignItems: 'flex-end', height: 16 }}>
+                          {[8, 14, 16, 10, 15, 6].map((h, i) => (
+                            <div
+                              key={i}
+                              style={{
+                                width: 3,
+                                height: h,
+                                borderRadius: 2,
+                                background: 'linear-gradient(180deg, #818cf8, #c084fc)',
+                              }}
+                            />
+                          ))}
+                        </div>
+                      </div>
+                    </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
-      </section>
+      </div>
+    </section>
 
       {/* 2. CATÁLOGO COMPLETO DE HERRAMIENTAS IA (MÁS FUNCIONES QUE AKOOL) */}
       <section style={{ padding: '60px 0 80px', borderTop: '1px solid var(--border-subtle)', background: 'rgba(99,102,241,0.02)' }}>
@@ -481,7 +544,7 @@ export default function HomePage() {
             boxShadow: '0 30px 80px rgba(0,0,0,0.8), 0 0 50px rgba(124,58,237,0.2)'
           }}>
             <h2 style={{ fontSize: 38, fontWeight: 900, marginBottom: 14 }}>
-              Empieza a Crear con <span className="text-gradient">AvatarAI Hoy Mismo</span>
+              Empieza a Crear con <span className="text-gradient">Mimik AI Hoy Mismo</span>
             </h2>
             <p style={{ fontSize: 16, color: 'var(--text-secondary)', marginBottom: 32, maxWidth: 540, margin: '0 auto 32px' }}>
               Pruébalo con 3 videos gratuitos sin tarjeta de crédito. Acceso completo a Studio 9:16 y Streaming en directo.
@@ -510,14 +573,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Footer */}
-      <footer style={{ borderTop: '1px solid var(--border-subtle)', padding: '32px 0', textAlign: 'center' }}>
-        <div className="container">
-          <p style={{ fontSize: 13, color: 'var(--text-muted)' }}>
-            © 2026 AvatarAI Studio · Plataforma de Video Avatar IA & Streaming en Vivo para TikTok, Reels y Shorts.
-          </p>
-        </div>
-      </footer>
+      <Footer />
 
       <AuthModal
         isOpen={authModal.open}
