@@ -305,20 +305,25 @@ export default function LiveAvatarPage() {
                   }} />
                 )}
 
-                {/* Avatar Icon / Character */}
-                <div style={{
-                  width: 140, height: 140, borderRadius: '50%',
-                  background: 'rgba(255,255,255,0.12)',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  fontSize: 70, border: '4px solid rgba(255,255,255,0.25)',
-                  boxShadow: '0 20px 60px rgba(0,0,0,0.6)',
-                  transform: isAvatarSpeaking ? 'scale(1.06)' : 'scale(1)',
-                  transition: 'transform 0.2s ease', zIndex: 2
-                }}>
+                {/* Avatar Icon / Character (Clickable to start) */}
+                <div
+                  onClick={!isStreaming ? handleStartStream : undefined}
+                  style={{
+                    width: 140, height: 140, borderRadius: '50%',
+                    background: 'rgba(255,255,255,0.12)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    fontSize: 70, border: '4px solid rgba(255,255,255,0.25)',
+                    boxShadow: '0 20px 60px rgba(0,0,0,0.6)',
+                    transform: isAvatarSpeaking ? 'scale(1.06)' : 'scale(1)',
+                    transition: 'transform 0.2s ease', zIndex: 2,
+                    cursor: !isStreaming ? 'pointer' : 'default'
+                  }}
+                  title={!isStreaming ? 'Haz clic para iniciar streaming' : undefined}
+                >
                   {selectedAgent.emoji}
                 </div>
 
-                {/* Status caption */}
+                {/* Status caption / Start Streaming Button */}
                 <div style={{ marginTop: 24, zIndex: 2 }}>
                   {isAvatarSpeaking ? (
                     <div style={{
@@ -337,13 +342,18 @@ export default function LiveAvatarPage() {
                       👂 Escuchando tu mensaje...
                     </div>
                   ) : (
-                    <div style={{
-                      padding: '6px 14px', borderRadius: 20,
-                      background: 'rgba(0,0,0,0.6)', color: 'rgba(255,255,255,0.6)',
-                      fontSize: 11
-                    }}>
-                      Presiona &quot;Iniciar Streaming&quot; para conectar
-                    </div>
+                    <button
+                      type="button"
+                      className="btn btn-primary btn-md"
+                      onClick={handleStartStream}
+                      style={{
+                        boxShadow: '0 0 25px rgba(239,68,68,0.5)',
+                        animation: 'pulse 1.8s infinite',
+                        cursor: 'pointer'
+                      }}
+                    >
+                      🔴 Iniciar Streaming Ahora
+                    </button>
                   )}
                 </div>
               </div>
@@ -351,19 +361,43 @@ export default function LiveAvatarPage() {
               {/* Stream bottom controls */}
               <div style={{
                 padding: '12px 20px', background: 'rgba(0,0,0,0.85)',
-                display: 'flex', justifyContent: 'space-between', alignItems: 'center'
+                display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 10
               }}>
                 <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.7)' }}>
                   Modo: <strong>Conversación Bidireccional en Vivo</strong>
                 </div>
 
-                <div style={{ display: 'flex', gap: 8 }}>
+                <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                  {!isStreaming ? (
+                    <button
+                      type="button"
+                      className="btn btn-primary btn-xs"
+                      onClick={handleStartStream}
+                      style={{ fontSize: 11 }}
+                    >
+                      🔴 Iniciar Stream
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      className="btn btn-secondary btn-xs"
+                      onClick={handleStopStream}
+                      style={{ fontSize: 11, color: '#f87171' }}
+                    >
+                      ⏹ Detener
+                    </button>
+                  )}
+
                   <button
+                    type="button"
                     className={`btn btn-xs ${isListening ? 'btn-primary' : 'btn-ghost'}`}
-                    onClick={handleToggleMic}
+                    onClick={() => {
+                      if (!isStreaming) handleStartStream();
+                      handleToggleMic();
+                    }}
                     style={{ fontSize: 11 }}
                   >
-                    {isListening ? '🔴 Grabando Micrófono' : '🎙️ Hablar por Micrófono'}
+                    {isListening ? '🔴 Grabando Voz' : '🎙️ Hablar por Micrófono'}
                   </button>
                 </div>
               </div>

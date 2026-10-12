@@ -53,10 +53,10 @@ const PLANS: PricingPlan[] = [
     credits: 200,
     features: [
       '200 videos verticales 9:16 al mes',
-      'Avatares interactivos en streaming en vivo',
+      'Avatares interactivos en streaming en vivo (hasta 60 min/mes)',
       'Clonación de voz con ElevenLabs',
       'Generación prioritaria ultrarrápida',
-      'Resolución 4K ultra nítida',
+      'Resolución Full HD 1080p Ultra (60 FPS sin compresión)',
       'Acceso a API externa para automatización',
       'Soporte VIP prioritario',
     ],
